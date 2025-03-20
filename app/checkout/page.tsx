@@ -24,7 +24,7 @@ export default function Checkout() {
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
   const [showRegister, setShowRegister] = React.useState(false);
-  const { user, token, login, logout } = useAuth();
+  const { user, token, login, logout } = useAuth() as { user: { email?: string } | string | null; token: string; login: () => void; logout: () => void };
   const idRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
@@ -106,15 +106,14 @@ export default function Checkout() {
               // Handle different possible user formats
               if (typeof user === 'object' && user !== null) {
                 // If user is already an object
-                userEmail = user.email || userEmail;
+                userEmail = (user as { email?: string }).email || userEmail;
               } else if (typeof user === 'string') {
-                // Try to determine if it's a JSON string
+                // Try to determine if its a JSON string
                 try {
                   if (user.startsWith('{') && user.endsWith('}')) {
                     const parsedUser = JSON.parse(user);
                     userEmail = parsedUser.email || userEmail;
                   } else if (user.includes('@')) {
-                    // If it's directly an email string
                     userEmail = user;
                   }
                 } catch (e) {
@@ -183,7 +182,7 @@ export default function Checkout() {
           <CardHeader>
             <CardTitle className="my-4">Continue</CardTitle>
             <CardDescription>
-              By clicking on pay you'll purchase your plan subscription of Rs{" "}
+              By clicking on pay you&apos;ll purchase your plan subscription of Rs{" "}
               {amount}/month
             </CardDescription>
           </CardHeader>

@@ -137,7 +137,7 @@ export default function Page() {
                 </p>
                 <Login />
                 <p className="text-sm mt-4">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 </p>
                 <Register />
             </>
