@@ -1,4 +1,5 @@
 "use client";
+
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +14,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { LoaderCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import Register from "@/components/Register";
 
 export default function Checkout() {
   const router = useRouter();
@@ -23,18 +23,11 @@ export default function Checkout() {
   const [loading, setLoading] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
-  const [showRegister, setShowRegister] = React.useState(false);
-  const { user, token, login, logout } = useAuth() as { user: { email?: string } | string | null; token: string; login: () => void; logout: () => void };
+  const { user, token } = useAuth() as { user: { email?: string } | string | null; token: string };
   const idRef = React.useRef<string | null>(null);
 
-  React.useEffect(() => {
-    if (!amount) {
-      router.replace("/");
-    }
-    createOrderId();
-  }, []);
-
-  const createOrderId = async () => {
+  // Wrap createOrderId in useCallback to avoid unnecessary re-renders
+  const createOrderId = React.useCallback(async () => {
     try {
       const response = await fetch("/api/order", {
         method: "POST",
@@ -59,7 +52,16 @@ export default function Checkout() {
       setErrorMessage(error.message || "Something went wrong. Please try again.");
       setLoading1(false);
     }
-  };
+  }, [amount]);
+
+  // Add missing dependencies to useEffect
+  React.useEffect(() => {
+    if (!amount) {
+      router.replace("/");
+    } else {
+      createOrderId();
+    }
+  }, [amount, createOrderId, router]);
 
   const processPayment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -79,7 +81,7 @@ export default function Checkout() {
         key: process.env.key_id,
         amount: parseFloat(amount!) * 100,
         currency: "INR",
-        name: "Payment", // business name
+        name: "Payment",
         description: "Payment",
         order_id: orderId,
         handler: async function (response: any) {
@@ -98,35 +100,23 @@ export default function Checkout() {
 
           const res = await result.json();
           if (res.isOk) {
-            setSuccessMessage(res.message || "Payment successful! "+  user);
+            setSuccessMessage(res.message || "Payment successful!");
 
             if (user) {
-              let userEmail = "guest@example.com"; // Default fallback
-              
-              // Handle different possible user formats
-              if (typeof user === 'object' && user !== null) {
-                // If user is already an object
+              let userEmail = "guest@example.com";
+
+              if (typeof user === "object" && user !== null) {
                 userEmail = (user as { email?: string }).email || userEmail;
-              } else if (typeof user === 'string') {
-                // Try to determine if its a JSON string
-                try {
-                  if (user.startsWith('{') && user.endsWith('}')) {
-                    const parsedUser = JSON.parse(user);
-                    userEmail = parsedUser.email || userEmail;
-                  } else if (user.includes('@')) {
-                    userEmail = user;
-                  }
-                } catch (e) {
-                  console.error("Error parsing user data:", e);
-                }
+              } else if (typeof user === "string" && user.includes("@")) {
+                userEmail = user;
               }
-              
+
               console.log("Using email:", userEmail);
-              
+
               await fetch("/api/receipt", {
                 method: "POST",
                 headers: {
-                  "Content-Type": "application/json"
+                  "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                   email: userEmail,
