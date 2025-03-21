@@ -49,7 +49,7 @@ const Register = () => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        className="w-full p-2 mb-4 border border-gray-300 rounded"
+        className="w-auto p-2 mb-4 border border-gray-300 rounded"
       />
       <input
         type="password"
@@ -57,11 +57,11 @@ const Register = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
-        className="w-full p-2 mb-4 border border-gray-300 rounded"
+        className="w-auto p-2 mb-4 border border-gray-300 rounded"
       />
       {errorMessage && <p className="text-red-500 text-sm mb-4">{errorMessage}</p>}
       {successMessage && <p className="text-green-500 text-sm mb-4">{successMessage}</p>}
-      <Button className="w-full" type="submit">
+      <Button className="w-auto" type="submit">
         {loading ? "...loading" : "Register"}
       </Button>
     </form>

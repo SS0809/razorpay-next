@@ -13,6 +13,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<string | null>(null);
+    const [email, setEmail] = useState('');
     const [token, setToken] = useState<string | null>(null);
 
     useEffect(() => {

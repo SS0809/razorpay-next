@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation'; // ✅ Correct import for Next.js App Router
+import { useRouter } from 'next/navigation'; 
 import { Button } from '@/components/ui/button';
 
 const Login = () => {
@@ -11,7 +11,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { login } = useAuth();
-  const router = useRouter(); // ✅ Ensure it's inside a client component
+  const router = useRouter(); 
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,10 +32,9 @@ const Login = () => {
       }
 
       const data = await response.json();
-      console.log(data.user.email, data.token);
-      login(data.user, data.token);
+      login(email, data.token);
       setLoading(false);
-      router.push('/'); // ✅ Correct usage inside a client component
+      router.push('/'); 
     } catch (error: any) {
       console.error('There was a problem with your fetch operation:', error);
       setErrorMessage(error.message || 'Something went wrong. Please try again.');
@@ -51,7 +50,7 @@ const Login = () => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        className="w-full p-2 mb-4 border border-gray-300 rounded"
+        className="w-auto p-2 mb-4 border border-gray-300 rounded"
       />
       <input
         type="password"
@@ -59,10 +58,10 @@ const Login = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
-        className="w-full p-2 mb-4 border border-gray-300 rounded"
+        className="w-auto p-2 mb-4 border border-gray-300 rounded"
       />
       {errorMessage && <p className="text-red-500 text-sm mb-4">{errorMessage}</p>}
-      <Button className="w-full" type="submit">
+      <Button className="w-auto" type="submit">
         {loading ? '...loading' : 'Login'}
       </Button>
     </form>

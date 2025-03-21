@@ -124,6 +124,20 @@ export default function Checkout() {
                   amount: parseFloat(amount!),
                 }),
               });
+
+              // Add orderId to user (example implementation)
+                await fetch("/api/update", {
+                  method: "POST",
+                  headers: {
+                  "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                  email: userEmail,
+                  orderId: orderId,
+                  amount: parseFloat(amount!),
+                  createdAt: Date.now(),
+                  }),
+                });
             } else {
               console.warn("User is not logged in, skipping receipt email");
             }
@@ -183,16 +197,16 @@ export default function Checkout() {
             {successMessage && (
               <p className="text-green-500 text-sm mb-4">{successMessage}</p>
             )}
-            <form onSubmit={processPayment}>
+            {/* <form onSubmit={processPayment}>
               <Button className="w-full" type="submit">
                 {loading ? "...loading" : "Pay"}
               </Button>
-            </form>
+            </form> */}
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <p className="text-sm text-muted-foreground underline underline-offset-4">
+            {/* <p className="text-sm text-muted-foreground underline underline-offset-4">
               Please read the terms and conditions.
-            </p>
+            </p> */}
             <Button
               className="w-full"
               variant="outline"
