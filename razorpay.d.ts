@@ -5,3 +5,5 @@ declare global {
     Razorpay: any;
   }
 }
+
+declare module 'pdfjs-dist/build/pdf.worker.entry';

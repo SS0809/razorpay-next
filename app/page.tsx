@@ -12,7 +12,7 @@ import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React from 'react';
-import Image from 'next/image';
+import { useState } from 'react';
 import Login from '@/components/Login';
 import Register from '@/components/Register';
 import { useAuth } from '@/context/AuthContext';
@@ -20,12 +20,13 @@ import ReminderMessage from "@/components/ReminderMessage";
 import MyOrdersSidebar from "@/components/MyOrderSidebar";
 import { OrderManager } from "@/components/sidebar/OrderManager";
 import { Instagram, Youtube } from "lucide-react";
-
-const Header = () => (
-  <header className="w-full py-4 bg-gray-900 text-white text-center">
-    <h1 className="text-4xl font-bold">BLean</h1>
-  </header>
-);
+import Sidebar from "@/components/sidebarmain";
+import SecurePdfViewer from "@/components/SecurePDFviewer";
+// const Header = () => (
+//   <header className="w-full py-4 bg-gray-900 text-white text-center">
+//     <h1 className="text-4xl font-bold">BLean</h1>
+//   </header>
+// );
 
 
 const Footer = () => (
@@ -135,6 +136,10 @@ const Testimonials = () => {
 };
 export default function Page() {
   const { user, token, logout } = useAuth(); 
+  const [showPdf, setShowPdf] = useState(false);
+  const [showOrders ,setShowOrders] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [orderManager, setOrderManager] = useState(new OrderManager());
   const plans = [
     {
       title: "Basic",
@@ -153,10 +158,10 @@ export default function Page() {
   ];
 
   ////////////////////////////////////////////////////////////////////////////
-  const orderManager = new OrderManager();
-  async function getOrders() {//not adding json data
+  // const orderManager = new OrderManager();
+  async function getOrders() {
     try {
-      const storedEmail = localStorage.getItem('user'); // Get email from localStorage
+      const storedEmail = localStorage.getItem('user'); 
       if (!storedEmail) {
         console.error("No email found in localStorage");
         return [];
@@ -174,20 +179,22 @@ export default function Page() {
       console.log(JSON.stringify(res.user.orders));
       if (response.ok) {
         console.log("Fetched Orders:", res.user.orders);
+        // Create a new instance of OrderManager
+        const updatedManager = new OrderManager();
         res.user.orders.forEach((order: { orderId: string; amount: number; createdAt: string }) => {
           const createdAtDate = new Date(order.createdAt);
           const currentDate = new Date();
           const timeDifference = currentDate.getTime() - createdAtDate.getTime();
           const daysDifference = timeDifference / (1000 * 60 * 60 * 24); 
-          orderManager.addOrder({
+          updatedManager.addOrder({
             orderId: order.orderId,
             amount: order.amount,
             status: daysDifference > 30 ? "Finished" : "Running", 
             createdAt: createdAtDate.toLocaleString(),
           });
         });
-        
-  
+        // Update state to trigger re-render
+        setOrderManager(updatedManager);
         return res.user.orders;
       } else {
         console.error("Error:", res.message);
@@ -198,10 +205,23 @@ export default function Page() {
       return [];
     }
   }
+  
 // ///////////////////////////////////////////////////////////////////////////////////
   return (
     <div className="container mx-auto py-8 text-center">
-    <Header />
+    {/* <Header /> */}
+    <div className="flex">
+    <Sidebar 
+      isOpen={isSidebarOpen} 
+      onClose={() => setIsSidebarOpen(false)} 
+      onFetchOrders={getOrders}
+      openPDF={() => setShowPdf(prev => !prev)}
+      setShowOrders = {setShowOrders}//state
+      showOrders = {showOrders}
+      logout = {logout}
+    />
+    </div>
+    
     <HeroSection />
     <div className="flex flex-col items-center">
   {token ? (
@@ -209,21 +229,39 @@ export default function Page() {
       <p className="text-green-700 text-sm mb-4">
         {user} logged in!
       </p>
-      <div className="flex gap-4">
+      {/* <div className="flex gap-4">
         <Button className="w-auto" onClick={logout}>Logout</Button>
         <Button
           className="w-auto"
           onClick={async () => {
             await getOrders();
+            setShowOrders(prev => !prev)
             console.log("Orders fetched!");
           }}
         >
           Fetch Orders
         </Button>
-      </div>
+      </div> */}
+      {showOrders ? 
       <div className="mt-4 w-full">
         <MyOrdersSidebar orderManager={orderManager} />
-      </div>
+      </div> :
+      null
+      }
+      <div className="flex flex-col items-center justify-center">
+      {/* <Button 
+  className="w-auto" 
+  onClick={() => {
+    setShowPdf(prev => !prev);
+    console.log("Show PDF:", !showPdf);
+  }}
+>
+  {showPdf ? "Hide PDF" : "Show PDF"}
+</Button> */}
+
+
+            {showPdf && <SecurePdfViewer />}
+        </div>
     </>
   ) : (
     <>
