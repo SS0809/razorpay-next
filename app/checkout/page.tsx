@@ -23,6 +23,7 @@ export default function Checkout() {
   const [loading, setLoading] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
+  const [redirectCountdown, setRedirectCountdown] = React.useState<number | null>(null);
   const { user, token } = useAuth() as { user: { email?: string } | string | null; token: string };
   const idRef = React.useRef<string | null>(null);
 
@@ -62,6 +63,29 @@ export default function Checkout() {
       createOrderId();
     }
   }, [amount, createOrderId, router]);
+
+  // Auto redirect logic
+  React.useEffect(() => {
+    let redirectTimer: NodeJS.Timeout;
+    
+    if (successMessage) {
+      setRedirectCountdown(3);
+      
+      redirectTimer = setInterval(() => {
+        setRedirectCountdown((prev) => {
+          if (prev === 1) {
+            router.push("/");
+            return null;
+          }
+          return prev ? prev - 1 : null;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (redirectTimer) clearInterval(redirectTimer);
+    };
+  }, [successMessage, router]);
 
   const processPayment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -126,18 +150,18 @@ export default function Checkout() {
               });
 
               // Add orderId to user (example implementation)
-                await fetch("/api/update", {
-                  method: "POST",
-                  headers: {
+              await fetch("/api/update", {
+                method: "POST",
+                headers: {
                   "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
+                },
+                body: JSON.stringify({
                   email: userEmail,
                   orderId: orderId,
                   amount: parseFloat(amount!),
                   createdAt: Date.now(),
-                  }),
-                });
+                }),
+              });
             } else {
               console.warn("User is not logged in, skipping receipt email");
             }
@@ -195,7 +219,14 @@ export default function Checkout() {
               <p className="text-red-500 text-sm mb-4">{errorMessage}</p>
             )}
             {successMessage && (
-              <p className="text-green-500 text-sm mb-4">{successMessage}</p>
+              <div>
+                <p className="text-green-500 text-sm mb-4">{successMessage}</p>
+                {redirectCountdown !== null && (
+                  <p className="text-sm text-muted-foreground">
+                    Redirecting to home in {redirectCountdown} seconds...
+                  </p>
+                )}
+              </div>
             )}
             <form onSubmit={processPayment}>
               <Button className="w-full" type="submit">

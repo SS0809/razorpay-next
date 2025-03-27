@@ -138,7 +138,6 @@ export default function Page() {
   const { user, token, logout } = useAuth(); 
   const [showPdf, setShowPdf] = useState(false);
   const [showOrders ,setShowOrders] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [orderManager, setOrderManager] = useState(new OrderManager());
   const plans = [
     {
@@ -208,83 +207,75 @@ export default function Page() {
   
 // ///////////////////////////////////////////////////////////////////////////////////
   return (
-    <div className="container mx-auto py-8 text-center">
-    {/* <Header /> */}
-    <div className="flex">
-    <Sidebar 
-      isOpen={isSidebarOpen} 
-      onClose={() => setIsSidebarOpen(false)} 
-      onFetchOrders={getOrders}
-      openPDF={() => setShowPdf(prev => !prev)}
-      setShowOrders = {setShowOrders}//state
-      showOrders = {showOrders}
-      logout = {logout}
-    />
-    </div>
-    
-    <HeroSection />
-    <div className="flex flex-col items-center">
-  {token ? (
-    <>
-      <p className="text-green-700 text-sm mb-4">
-        {user} logged in!
-      </p>
-      {/* <div className="flex gap-4">
-        <Button className="w-auto" onClick={logout}>Logout</Button>
-        <Button
-          className="w-auto"
-          onClick={async () => {
-            await getOrders();
-            setShowOrders(prev => !prev)
-            console.log("Orders fetched!");
-          }}
-        >
-          Fetch Orders
-        </Button>
-      </div> */}
-      {showOrders ? 
-      <div className="mt-4 w-full">
-        <MyOrdersSidebar orderManager={orderManager} />
-      </div> :
-      null
-      }
-      <div className="flex flex-col items-center justify-center">
-      {/* <Button 
-  className="w-auto" 
-  onClick={() => {
-    setShowPdf(prev => !prev);
-    console.log("Show PDF:", !showPdf);
-  }}
->
-  {showPdf ? "Hide PDF" : "Show PDF"}
-</Button> */}
+    <div className="relative min-h-screen bg-white">
+      {/* Sidebar */}
+      <Sidebar 
+        onFetchOrders={getOrders}
+        openPDF={() => setShowPdf(prev => !prev)}
+        setShowOrders={setShowOrders}
+        showOrders={showOrders}
+        logout={logout}
+      />
 
+      {/* Main Content */}
+      <main className="lg:ml-64 pt-20 px-0 lg:px-0">
+        {/* Hero Section */}
+        <HeroSection />
 
-            {showPdf && <SecurePdfViewer />}
+        {/* Auth Section */}
+        <div className="flex flex-col items-center w-full mt-6">
+          {token ? (
+            <>
+              <p className="text-green-700 text-sm mb-4">{user} logged in!</p>
+
+              {/* Orders */}
+              {showOrders && (
+                <div className="mt-4 w-full">
+                  <MyOrdersSidebar orderManager={orderManager} />
+                </div>
+              )}
+
+              {/* PDF Section */}
+              <div className="flex flex-col items-center justify-center w-full">
+                {showPdf && <SecurePdfViewer />}
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-sm mt-4">Already have an account?</p>
+              <Login />
+              <p className="text-sm mt-4">Don&apos;t have an account?</p>
+              <Register />
+            </>
+          )}
         </div>
-    </>
-  ) : (
-    <>
-      <p className="text-sm mt-4">Already have an account?</p>
-      <Login />
-      <p className="text-sm mt-4">Don&apos;t have an account?</p>
-      <Register />
-    </>
-  )}
-</div>
 
-      <Testimonials />
-      <h2 className="text-2xl font-semibold tracking-tight">Choose the plan that&apos;s right for you</h2>
-      <h1 className="text-4xl font-extrabold tracking-tight mt-10">Pricing Plans</h1>
-      <section className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-8 mt-10">
-        {plans.map((plan) => (
-          <PricingCard key={plan.title} {...plan} />
-        ))}
-      </section>
-      <div>
-            <ReminderMessage />
+        {/* Testimonials */}
+        <div className="mt-10">
+          <Testimonials />
         </div>
-      <Footer />
+
+        {/* Pricing Section */}
+        <div className="text-center mt-10">
+          <h2 className="text-2xl font-semibold tracking-tight">Choose the plan that&apos;s right for you</h2>
+          <h1 className="text-4xl font-extrabold tracking-tight mt-4">Pricing Plans</h1>
+
+          <section className="flex flex-col sm:flex-row flex-wrap justify-center gap-8 mt-10">
+            {plans.map((plan) => (
+              <PricingCard key={plan.title} {...plan} />
+            ))}
+          </section>
+        </div>
+
+        {/* Reminder */}
+        <div className="mt-10">
+          <ReminderMessage />
+        </div>
+
+        {/* Footer */}
+        <Footer />
+      </main>
     </div>
+
   );
 }
