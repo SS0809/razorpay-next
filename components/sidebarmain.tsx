@@ -24,8 +24,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   setAuthBar,
   additionalFunctions = [] 
 }) => {
+  
+  const { user } = useAuth(); 
+  const home = user ? "/dashboard": "/";
   const menuItems = [
-    { icon: <Home className="w-5 h-5" />, label: 'Dashboard', href: '/dashboard' }
+    { icon: <Home className="w-5 h-5" />, label: 'Dashboard', href: home }
   ];
   const [isOpen, setIsOpen] = useState(false);
 
@@ -34,7 +37,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     additionalFunctions.forEach(func => func());
   };
 
-  const { user } = useAuth(); 
   return (
     <>
       {/* Top Header */}
@@ -47,7 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
           <h1 className="text-2xl font-bold absolute left-20">BLean</h1>
-            <h1 className="text-2xl font-bold absolute left-1/2 transform -translate-x-1/2">{user}</h1>
+          <h1 className="hidden lg:block text-2xl font-bold absolute left-1/2 transform -translate-x-1/2">{user}</h1>
         </div>
         {token ? (
           <>

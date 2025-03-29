@@ -19,7 +19,7 @@ const Dashboard = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user !== 'saurabh452175@gmail.com') {
+    if (user !== 'saurabh45215@gmail.com') {
       router.push("/user");
       return;
     }
