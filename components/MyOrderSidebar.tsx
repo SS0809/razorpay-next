@@ -21,17 +21,17 @@ const MyOrdersSidebar: React.FC<MyOrdersSidebarProps> = ({ orderManager }) => {
   }, [orderManager]);
 
   return (
-    <aside className="w-auto bg-green-200 p-4 border-r border-gray-300">
+    <aside className="w-auto p-4 bg-gray-700 text-white">
       <h2 className="text-lg font-bold mb-4">Last Transaction</h2>
       <ul>
         {orders.map((order) => (
           <li
             key={order.orderId}
-            className="p-2 mb-2 border rounded bg-white shadow-sm"
+            className="p-2 mb-2 rounded shadow-sm"
           >
             <p className="font-semibold">PLan: {order.amount}</p>
-            <p className="text-sm text-gray-600">Status: {order.status}</p>
-            <p className="text-sm text-gray-600">Date: {order.createdAt}</p>
+            <p className="text-sm text-gray-300">Status: {order.status}</p>
+            <p className="text-sm text-gray-300">Date: {order.createdAt}</p>
           </li>
         ))}
       </ul>

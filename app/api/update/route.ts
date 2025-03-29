@@ -1,5 +1,6 @@
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
+import Order from '@/models/Order';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -13,11 +14,18 @@ export async function POST(req: NextRequest) {
 
     const updatedUser = await User.findOneAndUpdate(
       { email },
-      { $push: { orders: { orderId, amount, createdAt } } },
+      { $push: { orders: { orderId , email , amount, createdAt } } },
       { new: true, upsert: true } // Return the updated user and create a new one if not found
     );
 
-    return NextResponse.json({ message: 'User updated successfully', user: updatedUser }, { status: 200 });
+    const newOrder = await new Order({
+      orderId,
+      email,
+      amount,
+      createdAt
+    }).save();
+
+    return NextResponse.json({ message: 'User updated successfully', user: updatedUser ,order:newOrder}, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: 'Internal Server Error'}, { status: 500 });
   }

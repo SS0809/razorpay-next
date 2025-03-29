@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { Home, Calendar, ShoppingCart, Menu, X, LogOut } from 'lucide-react';
-import { useState } from 'react';
+import { Home, Calendar, ShoppingCart, Menu, X, LogOut, LogIn } from 'lucide-react';
+import React, { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
 
 type SidebarProps = {
     onFetchOrders?: () => void;
@@ -8,6 +9,8 @@ type SidebarProps = {
     setShowOrders?: React.Dispatch<React.SetStateAction<boolean>>;
     showOrders: boolean;
     logout?: () => void;
+    setAuthBar?:React.Dispatch<React.SetStateAction<boolean>>;
+    token: string | null;
     additionalFunctions?: (() => void)[];
 };
 
@@ -17,10 +20,12 @@ const Sidebar: React.FC<SidebarProps> = ({
   setShowOrders,
   showOrders,
   logout,
+  token,
+  setAuthBar,
   additionalFunctions = [] 
 }) => {
   const menuItems = [
-    { icon: <Home className="w-5 h-5" />, label: 'Dashboard', href: '/' }
+    { icon: <Home className="w-5 h-5" />, label: 'Dashboard', href: '/dashboard' }
   ];
   const [isOpen, setIsOpen] = useState(false);
 
@@ -29,6 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     additionalFunctions.forEach(func => func());
   };
 
+  const { user } = useAuth(); 
   return (
     <>
       {/* Top Header */}
@@ -41,14 +47,29 @@ const Sidebar: React.FC<SidebarProps> = ({
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
           <h1 className="text-2xl font-bold absolute left-20">BLean</h1>
+            <h1 className="text-2xl font-bold absolute left-1/2 transform -translate-x-1/2">{user}</h1>
         </div>
-        <button 
+        {token ? (
+          <>
+          <button 
           className="flex items-center gap-2 text-gray-400 hover:text-white" 
           onClick={logout}
         >
           <LogOut className="w-5 h-5" />
           <span>Logout</span>
         </button>
+          </>
+        ):(
+          <>
+          <button 
+          className="flex items-center gap-2 text-gray-400 hover:text-white" 
+          onClick={() => setAuthBar && setAuthBar(true)}
+          >
+          <LogIn className="w-5 h-5" />
+          <span>Login</span>
+        </button>
+          </>
+        )}
       </header>
 
       {/* Sidebar */}
