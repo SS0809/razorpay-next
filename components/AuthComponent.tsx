@@ -221,8 +221,8 @@ const RegisterForm = ({ switchTab }: { switchTab: () => void }) => {
             />
           </div>
           <ReCAPTCHA
-            sitekey="6LcnfQMrAAAAACFuwm3SIRKGee0-BOwdnFZKX9GB"
-            onChange={(token: React.SetStateAction<string | null>) => setRecaptchaToken(token)}
+            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6Lc3Y8cbAAAAAJ1Jj5nZ"}
+            onChange={(token) => setRecaptchaToken(token)}
           />
           {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
           {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
