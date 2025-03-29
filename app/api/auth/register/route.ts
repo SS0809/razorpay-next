@@ -1,22 +1,37 @@
-import bcrypt from 'bcryptjs';
-import connectToDatabase from '@/lib/mongodb';
-import User from '@/models/User';
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextApiRequest, NextApiResponse } from "next";
 
-export async function POST(req: NextRequest) {
-  await connectToDatabase();
-  const { email, password } = await req.json();
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method Not Allowed" });
+  }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = new User({
-    email,
-    password: hashedPassword,
-  });
+  const { email, password, recaptchaToken } = req.body;
+
+  if (!email || !password || !recaptchaToken) {
+    return res.status(400).json({ message: "Missing fields." });
+  }
 
   try {
-    await user.save();
-    return NextResponse.json({ message: 'User registered successfully' }, { status: 201 });
+    // Verify reCAPTCHA with Google
+    const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+    const recaptchaResponse = await fetch(`https://www.google.com/recaptcha/api/siteverify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        secret: recaptchaSecret || "",
+        response: recaptchaToken,
+      }).toString(),
+    });
+
+    const recaptchaData = await recaptchaResponse.json();
+
+    if (!recaptchaData.success) {
+      return res.status(400).json({ message: "reCAPTCHA verification failed." });
+    }
+
+    // Proceed with registration logic
+    return res.status(200).json({ message: "Registration successful!" });
   } catch (error) {
-    return NextResponse.json({ message: 'User registration failed', error }, { status: 500 });
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 }

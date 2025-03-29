@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const AuthComponent = () => {
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
@@ -142,44 +143,57 @@ const LoginForm = ({ switchTab }: { switchTab: () => void }) => {
   );
 };
 
+
+
 const RegisterForm = ({ switchTab }: { switchTab: () => void }) => {
   const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const router = useRouter();
+  const [step, setStep] = useState<"email" | "otp" | "password">("email");
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
-  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const validateEmail = () => {
+    if (!email) {
+      setErrorMessage("Email is required.");
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setErrorMessage("Please enter a valid email address.");
+      return false;
+    }
+    return true;
+  };
+
+  const handleSendOTP = async () => {
+    if (!validateEmail() || !recaptchaToken) {
+      setErrorMessage("Please complete the reCAPTCHA verification.");
+      return;
+    }
+
     setLoading(true);
     setErrorMessage(null);
     setSuccessMessage(null);
 
     try {
-      const response = await fetch("/api/auth/register", {
+      const response = await fetch("/api/auth/otp", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "send", email, recaptchaToken }),
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        throw new Error("Registration failed. Please try again.");
+        throw new Error(data.message || "Failed to send OTP. Try again.");
       }
 
-      setSuccessMessage("Registration successful! Please log in.");
-      setLoading(false);
-      
-      // Switch to login tab after successful registration
-      setTimeout(() => {
-        switchTab();
-      }, 2000);
-      
+      setSuccessMessage("OTP sent to your email.");
+      setStep("otp");
     } catch (error: any) {
-      console.error("There was a problem with your fetch operation:", error);
-      setErrorMessage(error.message || "Something went wrong. Please try again.");
+      setErrorMessage(error.message || "Something went wrong.");
+    } finally {
       setLoading(false);
     }
   };
@@ -189,58 +203,38 @@ const RegisterForm = ({ switchTab }: { switchTab: () => void }) => {
       <h5 className="text-xl font-medium text-gray-900 dark:text-white text-center mb-4">
         Create an account
       </h5>
-      
-      <form onSubmit={handleRegister} className="space-y-4">
-        <div>
-          <label htmlFor="register-email" className="block text-sm font-medium text-gray-900 dark:text-white">
-            Email address
-          </label>
-          <input
-            type="email"
-            id="register-email"
-            placeholder="name@company.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full p-2 mt-1 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+
+      {step === "email" && (
+        <>
+          <div>
+            <label htmlFor="register-email" className="block text-sm font-medium text-gray-900 dark:text-white">
+              Email address
+            </label>
+            <input
+              type="email"
+              id="register-email"
+              placeholder="name@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full p-2 mt-1 border border-gray-300 rounded-lg bg-gray-50 text-gray-900"
+            />
+          </div>
+          <ReCAPTCHA
+            sitekey="6LcnfQMrAAAAACFuwm3SIRKGee0-BOwdnFZKX9GB"
+            onChange={(token: React.SetStateAction<string | null>) => setRecaptchaToken(token)}
           />
-        </div>
-        
-        <div>
-          <label htmlFor="register-password" className="block text-sm font-medium text-gray-900 dark:text-white">
-            Password
-          </label>
-          <input
-            type="password"
-            id="register-password"
-            placeholder="Choose a password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full p-2 mt-1 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-          />
-        </div>
-        
-        {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
-        {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
-        
-        <Button className="w-full" type="submit">
-          {loading ? "Processing..." : "Register"}
-        </Button>
-        
-        <p className="text-sm font-medium text-gray-500 dark:text-gray-300 text-center">
-          Already have an account?{" "}
-          <button 
-            type="button" 
-            onClick={switchTab} 
-            className="text-blue-700 hover:underline dark:text-blue-500"
-          >
-            Sign in
+          {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+          {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
+          <button className="w-full mt-2" onClick={handleSendOTP} disabled={loading}>
+            {loading ? "Sending OTP..." : "Send OTP"}
           </button>
-        </p>
-      </form>
+        </>
+      )}
     </div>
   );
 };
+
+
 
 export default AuthComponent;
