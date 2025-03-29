@@ -144,7 +144,6 @@ const LoginForm = ({ switchTab }: { switchTab: () => void }) => {
 };
 
 
-
 const RegisterForm = ({ switchTab }: { switchTab: () => void }) => {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -198,6 +197,56 @@ const RegisterForm = ({ switchTab }: { switchTab: () => void }) => {
     }
   };
 
+  const handleVerifyOTP = async () => {
+    setLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const response = await fetch("/api/auth/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "verify", email, otp }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Invalid OTP.");
+      }
+
+      setSuccessMessage("OTP verified. Set your password.");
+      setStep("password");
+    } catch (error: any) {
+      setErrorMessage(error.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async () => {
+    setLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, recaptchaToken }), // Include the token
+      });
+    
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed.");
+      }
+    
+      setSuccessMessage("Registration successful. You can now login.");
+      switchTab();
+    } catch (error: any) {
+      setErrorMessage(error.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }    
+  };
+
   return (
     <div>
       <h5 className="text-xl font-medium text-gray-900 dark:text-white text-center mb-4">
@@ -206,31 +255,55 @@ const RegisterForm = ({ switchTab }: { switchTab: () => void }) => {
 
       {step === "email" && (
         <>
-          <div>
-            <label htmlFor="register-email" className="block text-sm font-medium text-gray-900 dark:text-white">
-              Email address
-            </label>
-            <input
-              type="email"
-              id="register-email"
-              placeholder="name@company.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full p-2 mt-1 border border-gray-300 rounded-lg bg-gray-50 text-gray-900"
-            />
-          </div>
+          <input
+            type="email"
+            placeholder="name@company.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2 mt-1 border border-gray-300 rounded-lg"
+          />
           <ReCAPTCHA
             sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6Lc3Y8cbAAAAAJ1Jj5nZ"}
             onChange={(token) => setRecaptchaToken(token)}
           />
-          {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
-          {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
-          <button className="w-full mt-2" onClick={handleSendOTP} disabled={loading}>
+          <button onClick={handleSendOTP} disabled={loading} className="w-full mt-2">
             {loading ? "Sending OTP..." : "Send OTP"}
           </button>
         </>
       )}
+
+      {step === "otp" && (
+        <>
+          <input
+            type="text"
+            placeholder="Enter OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            className="w-full p-2 mt-1 border border-gray-300 rounded-lg"
+          />
+          <button onClick={handleVerifyOTP} disabled={loading} className="w-full mt-2">
+            {loading ? "Verifying OTP..." : "Verify OTP"}
+          </button>
+        </>
+      )}
+
+      {step === "password" && (
+        <>
+          <input
+            type="password"
+            placeholder="Create password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 mt-1 border border-gray-300 rounded-lg"
+          />
+          <button onClick={handleRegister} disabled={loading} className="w-full mt-2">
+            {loading ? "Registering..." : "Register"}
+          </button>
+        </>
+      )}
+
+      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+      {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
     </div>
   );
 };

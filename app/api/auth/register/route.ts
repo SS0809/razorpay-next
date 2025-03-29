@@ -1,4 +1,7 @@
+import bcrypt from 'bcryptjs';
 import { NextResponse } from "next/server";
+import User from '@/models/User';
+import connectToDatabase from '@/lib/mongodb';
 
 export async function POST(req: Request) {
   try {
@@ -25,9 +28,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "reCAPTCHA verification failed." }, { status: 400 });
     }
 
-    // Proceed with registration logic
+    await connectToDatabase();
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return NextResponse.json({ message: "User already exists." }, { status: 400 });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ email, password: hashedPassword });
+    await newUser.save();
+
     return NextResponse.json({ message: "Registration successful!" }, { status: 200 });
   } catch (error) {
+    console.log("Error registering user:", error);
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
