@@ -43,7 +43,7 @@ const Footer = () => (
         rel="noopener noreferrer" 
         className="hover:text-gray-400"
       >
-        <Instagram size={24} />
+        <Instagram size={22} />
       </a>
       <a 
         href="https://www.youtube.com/@stayfitwithmayank" 
@@ -325,7 +325,8 @@ export default function Page() {
   
 // ///////////////////////////////////////////////////////////////////////////////////
   return (
-    <div className="relative min-h-screen bg-white">
+    <div className="relative min-h-screen bg-white 
+    select-none">
       {/* Sidebar */}
       <Sidebar 
         onFetchOrders={getOrders}
@@ -419,7 +420,7 @@ export default function Page() {
         </div>
 
         {/* Reminder */}
-        <div className="mt-10">
+        <div className="mt-10 m-10">
           <ReminderMessage />
         </div>
 
