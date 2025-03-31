@@ -220,7 +220,7 @@ export default function PlansEditor(): JSX.Element {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Price (in cents)</label>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Price (in rupees)</label>
             <input
               type="number"
               name="price"
@@ -336,7 +336,7 @@ export default function PlansEditor(): JSX.Element {
             <div key={plan._id} className="border border-gray-700 p-4 rounded bg-gray-800 shadow">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="font-medium text-lg text-gray-100">
-                  {plan.title} - ${(plan.price / 100).toFixed(2)}
+                  {plan.title} - Rs. {plan.price}
                 </h3>
                 <div className="flex gap-2">
                   <button

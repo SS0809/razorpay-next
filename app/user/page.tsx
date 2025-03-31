@@ -72,48 +72,48 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Hello {user} </h1>
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
-      <div className="mb-6">
-        <button
-          onClick={() => router.push("/")}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Go Back Home
-        </button>
-      </div>
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
-        
-        {orders.length === 0 ? (
-          <p className="text-gray-500">No orders found</p>
-        ) : (
-          <ul className="divide-y divide-gray-200">
-            {orders.map((order) => (
-              <li key={order.orderId} className="py-4">
-                <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      Order ID: {order.orderId}
-                    </p>
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      Email ID: {order.email}
-                    </p>
-                    <p className="text-sm text-gray-500 truncate">
-                      Created At: {new Date(order.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="inline-flex items-center text-base font-semibold text-gray-900">
-                    Rs.{order.amount}
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+  <div className="min-h-screen mx-auto px-4 py-8 text-white bg-black">
+    <h1 className="text-2xl font-bold mb-6">Hello {user}</h1>
+    <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+    <div className="mb-6">
+      <button
+        onClick={() => router.push("/")}
+        className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"
+      >
+        Go Back Home
+      </button>
     </div>
+    <div className="bg-gray-800 rounded-lg shadow p-6">
+      <h2 className="text-xl font-semibold mb-4 text-gray-200">Recent Orders</h2>
+  
+      {orders.length === 0 ? (
+        <p className="text-gray-400">No orders found</p>
+      ) : (
+        <ul className="divide-y divide-gray-700">
+          {orders.map((order) => (
+            <li key={order.orderId} className="py-4">
+              <div className="flex items-center space-x-4 rtl:space-x-reverse">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-200 truncate">
+                    Order ID: {order.orderId}
+                  </p>
+                  <p className="text-sm font-medium text-gray-200 truncate">
+                    Email ID: {order.email}
+                  </p>
+                  <p className="text-sm text-gray-400 truncate">
+                    Created At: {new Date(order.createdAt).toLocaleString()}
+                  </p>
+                </div>
+                <div className="inline-flex items-center text-base font-semibold text-gray-200">
+                  Rs.{order.amount}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </div>  
   );
 };
 
