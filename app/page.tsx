@@ -13,7 +13,7 @@ import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from "next/image";
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 import { useAuth } from '@/context/AuthContext';
@@ -170,7 +170,7 @@ const Card3D = () => {
           alt="thumbnail"
         />
       </CardItem>
-      {/* <div className="flex justify-between items-center mt-20">
+      <div className="flex justify-between items-center mt-20">
         <CardItem
           translateZ={20}
           as={Link}
@@ -187,35 +187,54 @@ const Card3D = () => {
         >
           Sign up
         </CardItem>
-      </div> */}
+      </div>
     </CardBody>
   </CardContainer>
   );
 };
-const Testimonials = () => {
-  const testimonials = [
-    {
-      name: "Death LIft",
-      feedback: "BLean has completely transformed my fitness journey. Highly recommend!",
-      image: "image.png",
-    },
-    {
-      name: "Show OFF",
-      feedback: "The trainers and facilities are top-notch. I love the Pro plan!",
-      image: "image2.png",
-    },
-    {
-      name: "BI ceps",
-      feedback: "Affordable plans and excellent support. BLean is the best!",
-      image: "image3.png", 
-    },
-  ];
 
+const Testimonials = () => {
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(true);
+  interface Testimonial {
+    _id?: string;
+    name: string;
+    feedback: string;
+    image: string;
+  }  
+  useEffect(() => {
+    async function fetchTestimonials() {
+        setLoading(true);
+      try {
+        const response = await fetch('/api/testimonials');
+        if (response.ok) {
+          const data = await response.json();
+          setTestimonials(data);
+          setLoading(false);
+        } else {
+          console.error('Failed to fetch testimonials');
+        }
+      } catch (error) {
+        console.error('Error fetching testimonials:', error);
+      }
+    }
+  
+    fetchTestimonials();
+  }, []);
+  
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-10">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+      </div>
+    );
+  }
+  
   return (
     <section className="py-10 bg-grey-300 text-center text-white">
       <h2 className="text-4xl font-extrabold mb-6">What Motivates US most</h2>
       <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-8">
-        {testimonials.map((testimonial, index) => (
+        {testimonials.map((testimonial:Testimonial, index) => (
           <div
             key={index}
           >

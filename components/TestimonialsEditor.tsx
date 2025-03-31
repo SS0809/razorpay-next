@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 interface Testimonial {
-    _id?: string;
-    name: string;
-    feedback: string;
-    image: string;
-}  
+  _id?: string;
+  name: string;
+  feedback: string;
+  image: string;
+}
 
-const API_BASE_URL = "api/testimonials";
+const API_BASE_URL = "/api/testimonials";
 
 export default function TestimonialsEditor(): JSX.Element {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -29,76 +29,84 @@ export default function TestimonialsEditor(): JSX.Element {
   const handleEdit = (index: number): void => {
     console.log("Editing index:", index);
     console.log("Testimonial data:", testimonials[index]); // Debugging
-  
+
     if (!testimonials[index]?._id) {
       console.error("Error: Testimonial ID is undefined!");
       return;
     }
-  
+
     setEditIndex(index);
     setNewTestimonial({ ...testimonials[index] });
   };
-  
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ): void => {
     const { name, value } = e.target;
-  
+
     setNewTestimonial((prev) => ({
       ...prev,
       [name]: value,
       _id: prev._id,
     }));
   };
-  
+
   const handleSave = async (): Promise<void> => {
+    const method = editIndex !== null ? "PUT" : "POST";
     try {
-      const response = await fetch(`/api/testimonials`, {
-        method: "POST",
+      const response = await fetch(API_BASE_URL, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newTestimonial),
       });
-  
+
       if (!response.ok) {
-        throw new Error(`Failed to update testimonial: ${response.statusText}`);
+        throw new Error(`Failed to ${editIndex !== null ? 'update' : 'add'} testimonial: ${response.statusText}`);
       }
-  
+
       const updatedTestimonial = await response.json();
-      console.log("Successfully updated testimonial:", updatedTestimonial);
-          // Reset form
-    setEditIndex(null);
-    setNewTestimonial({ name: "", feedback: "", image: "" });
+      console.log(`Successfully ${editIndex !== null ? 'updated' : 'added'} testimonial:`, updatedTestimonial);
+
+      if (editIndex !== null) {
+        setTestimonials(prev =>
+          prev.map((t, i) => (i === editIndex ? updatedTestimonial : t))
+        );
+      } else {
+        setTestimonials(prev => [...prev, updatedTestimonial]);
+      }
+
+      // Reset form
+      setEditIndex(null);
+      setNewTestimonial({ name: "", feedback: "", image: "" });
     } catch (error) {
-      console.error("PUT request error:", error);
+      console.error(`${method} request error:`, error);
     }
   };
-  
+
   const handleDelete = async (index: number): Promise<void> => {
     try {
       const id = testimonials[index]._id;
-  
-      const response = await fetch(`/api/testimonials`, {
+
+      const response = await fetch(API_BASE_URL, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: id }),
+        body: JSON.stringify({ _id: id }),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to delete testimonial");
       }
-  
+
       setTestimonials(prev => prev.filter((_, i) => i !== index));
     } catch (error) {
       console.error("Error deleting testimonial:", error);
     }
   };
-  
 
   return (
     <div className="p-6 max-w-4xl mx-auto text-white bg-black min-h-screen">
       <h1 className="text-2xl font-bold mb-6">Testimonials Editor</h1>
-      
+
       {/* Form for adding/editing testimonials */}
       <div className="bg-gray-900 p-4 rounded-lg mb-6">
         <h2 className="text-xl font-semibold mb-4">
@@ -114,7 +122,7 @@ export default function TestimonialsEditor(): JSX.Element {
           </div>
         </div>
       </div>
-      
+
       {/* List of testimonials */}
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4">Current Testimonials</h2>
