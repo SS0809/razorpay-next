@@ -270,6 +270,64 @@ const Testimonials = () => {
     </section>
   );
 };
+
+const PricingSection = () => {
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  interface Plan {
+    _id?: string;
+    title: string;
+    price: number;
+    description: string;
+    features: string[];
+    unavailableFeatures: string[];
+    actionLabel: string;
+  }
+
+  useEffect(() => {
+    async function fetchPlans() {
+      setLoading(true);
+      try {
+        const response = await fetch('/api/plans');
+        if (response.ok) {
+          const data = await response.json();
+          setPlans(data);
+          setLoading(false);
+        } else {
+          console.error('Failed to fetch plans');
+        }
+      } catch (error) {
+        console.error('Error fetching plans:', error);
+      }
+    }
+
+    fetchPlans();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-10">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+      </div>
+    );
+  }
+
+  return (
+    <section className="py-10 dark text-center text-white">
+      <div className="text-center mt-1">
+        <h2 className="text-2xl font-semibold tracking-tight">Choose the plan that&apos;s right for you</h2>
+        <h1 className="text-4xl font-extrabold tracking-tight mt-4">Pricing Plans</h1>
+
+        <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-8 mt-10">
+          {plans.map((plan: Plan) => (
+            <SimplePricingCard key={plan._id} {...plan} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
 export default function Page() {
   const { user, token, logout } = useAuth(); 
   const [showPdf, setShowPdf] = useState(false);
@@ -427,16 +485,7 @@ export default function Page() {
         </div>
 
         {/* Pricing Section */}
-        <div className="text-center mt-1 text-white">
-          <h2 className="text-2xl font-semibold tracking-tight">Choose the plan that&apos;s right for you</h2>
-          <h1 className="text-4xl font-extrabold tracking-tight mt-4">Pricing Plans</h1>
-
-          <section className="flex flex-col sm:flex-row flex-wrap justify-center gap-8 mt-10 dark">
-            {plans.map((plan) => (
-              <SimplePricingCard key={plan.title} {...plan} />
-            ))}
-          </section>
-        </div>
+        <PricingSection />
 
         {/* Reminder */}
         <div className="mt-10 m-10">
