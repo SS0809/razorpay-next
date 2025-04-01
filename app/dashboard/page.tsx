@@ -30,10 +30,25 @@ const Dashboard = () => {
   const [activeSection, setActiveSection] = useState<SectionType>(SectionType.ORDERS);
 
   useEffect(() => {
-    if (user !== 'saurabh45215@gmail.com') {
-      router.push("/user");
-      return;
-    }
+    const verifyUser = async () => {
+      try {
+        const response = await fetch("/api/verifyadmin", {
+          method: 'POST',
+          body: JSON.stringify({ email: user }),
+        });
+
+        const data = await response.json();
+        if (!data.authorized) {
+          router.push("/user");
+          return;
+        }
+
+        fetchOrders();
+      } catch (error) {
+        console.error("Error verifying user:", error);
+        setError("Failed to verify user");
+      }
+    };
 
     const fetchOrders = async () => {
       try {
@@ -47,7 +62,7 @@ const Dashboard = () => {
         if (!response.ok) {
           throw new Error("Failed to fetch orders");
         }
-        
+
         const data = await response.json();
         if (Array.isArray(data)) {
           setOrders(data);
@@ -65,7 +80,7 @@ const Dashboard = () => {
       }
     };
 
-    fetchOrders();
+    verifyUser();
   }, [user, router, token]);
 
   if (loading) {
