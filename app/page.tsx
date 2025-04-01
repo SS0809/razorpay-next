@@ -255,7 +255,7 @@ const Testimonials = () => {
               </CardItem>
               <CardItem translateZ="100" className="w-full mt-4">
                 <Image
-                  src={`/${testimonial.image}`}
+                  src={testimonial.image}
                   height="1000"
                   width="1000"
                   className="h-auto w-auto object-cover rounded-xl group-hover/card:shadow-xl"
