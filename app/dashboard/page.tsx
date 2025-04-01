@@ -105,8 +105,8 @@ const Dashboard = () => {
     setIsDropdownOpen(false);
   };
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleString();
+  const formatDate = (dateString: string): Date => {
+    return new Date(dateString);
   };
 
   const formatCurrency = (amount: number): string => {
@@ -197,12 +197,15 @@ const Dashboard = () => {
                    <p className="text-sm font-medium text-gray-200 truncate">
                      Order ID: {order.orderId}
                    </p>
+                   <br></br>
                    <p className="text-sm font-medium text-gray-200 truncate">
-                     Email ID: {order.email}
+                     {order.email}
                    </p>
+                   <br></br>
                    <p className="text-sm text-gray-400 truncate">
-                     Created At: {formatDate(order.createdAt)}
+                     {formatDate(order.createdAt).toDateString() + " :: " + formatDate(order.createdAt).toTimeString()} 
                    </p>
+                   <br></br>
                  </div>
                  <div className="inline-flex items-center text-base font-semibold text-gray-300">
                    {formatCurrency(order.amount)}
