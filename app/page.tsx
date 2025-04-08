@@ -1,14 +1,16 @@
 "use client";
-
+import AspectRatio from '@mui/joy/AspectRatio';
+import Box from '@mui/joy/Box';
+import Typography from '@mui/joy/Typography';
+import Card from '@mui/joy/Card';
 import {
-  Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -59,14 +61,17 @@ const Footer = () => (
 
 const HeroSection = () => (
   <section className="text-center py-10 text-white">
-    <h2 className="text-4xl font-extrabold">Get Fit, Stay Strong</h2>
-    <p className="text-lg text-gray-600 mt-2">Join BLean and transform your fitness journey today.</p>
+    <h2 className="text-4xl font-extrabold">Join our fitness programme for </h2>
+    <h2 className="text-4xl font-extrabold">lasting health and vilatity </h2>
+    <p className="text-lg text-gray-600 mt-2">transform your sedentary lifestyle with expert guidance </p>
   </section>
 );
 
 type PricingCardProps = {
   title: string;
   price: number;
+  duration: number;
+  discountrate: number;
   description: string;
   features: string[];
   unavailableFeatures: string[];
@@ -97,6 +102,8 @@ const PricingCard = ({ title, price, description, features, actionLabel }: Prici
 const SimplePricingCard = ({ 
   title = "Standard Plan", 
   price = 49, 
+  duration= 1,
+  discountrate= 0,
   description = "", 
   features = [], 
   unavailableFeatures = [],
@@ -105,9 +112,10 @@ const SimplePricingCard = ({
   <div className="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:p-8 dark:bg-gray-800 dark:border-gray-700">
     <h5 className="mb-4 text-xl font-medium text-gray-500 dark:text-gray-400">{title}</h5>
     <div className="flex items-baseline text-gray-900 dark:text-white">
-      <span className="text-3xl font-semibold">Rs.</span>
-      <span className="text-5xl font-extrabold tracking-tight">{price}</span>
-      <span className="ms-1 text-xl font-normal text-gray-500 dark:text-gray-400">/month</span>
+      <span className="text-1xl font-semibold">Rs.</span>
+      <span className="text-3xl font-extrabold tracking-tight line-through text-gray-400">{price}</span>
+      <span className="text-3xl font-extrabold tracking-tight text-green-500 ms-4">{price - (price * discountrate / 100)}</span>
+      <span className="ms-1 text-xl font-normal text-gray-500 dark:text-gray-400">/{duration} months</span>
     </div>
     {description && <p className="text-gray-500 dark:text-gray-400 my-4">{description}</p>}
     
@@ -193,83 +201,173 @@ const Card3D = () => {
   );
 };
 
+interface Testimonial {
+  _id?: string;
+  name: string;
+  feedback: string;
+  image: string;
+}
+
 const Testimonials = () => {
-  const [testimonials, setTestimonials] = useState([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
-  interface Testimonial {
-    _id?: string;
-    name: string;
-    feedback: string;
-    image: string;
-  }  
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
+
   useEffect(() => {
     async function fetchTestimonials() {
-        setLoading(true);
+      setLoading(true);
       try {
         const response = await fetch('/api/testimonials');
         if (response.ok) {
           const data = await response.json();
           setTestimonials(data);
-          setLoading(false);
         } else {
           console.error('Failed to fetch testimonials');
         }
       } catch (error) {
         console.error('Error fetching testimonials:', error);
+      } finally {
+        setLoading(false);
       }
     }
-  
+
     fetchTestimonials();
   }, []);
-  
+
+  const nextSlide = () => {
+    setSlideDirection('right');
+    setCurrentIndex((prevIndex) =>
+      prevIndex === testimonials.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const prevSlide = () => {
+    setSlideDirection('left');
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
+    );
+  };
+
+  const goToSlide = (index: number) => {
+    if (index > currentIndex) {
+      setSlideDirection('right');
+    } else if (index < currentIndex) {
+      setSlideDirection('left');
+    }
+    setCurrentIndex(index);
+  };
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-10">
+      <div className="flex justify-center items-center py-10 bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
       </div>
     );
   }
-  
-  return (
-    <section className="py-10 bg-grey-300 text-center text-white">
-      <h2 className="text-4xl font-extrabold mb-6">What Motivates US most</h2>
-      <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-8">
-        {testimonials.map((testimonial:Testimonial, index) => (
-          <div
-            key={index}
-          >
-          <CardContainer className="inter-var">
-            <CardBody className="bg-transparent dark relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.2] dark:border-white/[0.3] border-white/[0.2] w-auto sm:w-[30rem] h-auto rounded-xl p-6 border">
-              <CardItem
-                translateZ="50"
-                className="text-xl font-bold text-white"
-              >
-                {testimonial.name}
-              </CardItem>
-              <CardItem
-                as="p"
-                translateZ="60"
-                className="text-neutral-400 text-sm max-w-sm mt-2 dark:text-neutral-300"
-              >
-                {testimonial.feedback}
-              </CardItem>
-              <CardItem translateZ="100" className="w-full mt-4">
-                <Image
-                  src={testimonial.image}
-                  height="1000"
-                  width="1000"
-                  className="h-auto w-auto object-cover rounded-xl group-hover/card:shadow-xl"
-                  alt="thumbnail"
-                />
-              </CardItem>
-            </CardBody>
-          </CardContainer>
-        </div>
-        ))}
+
+  // Fallback for empty testimonials
+  if (!testimonials.length) {
+    return (
+      <div className="flex justify-center items-center py-10 bg-gray-900 text-gray-300">
+        <p>No testimonials available at this time.</p>
       </div>
-    </section>
+    );
+  }
+
+  return (
+    <div className="bg-gray-900 py-20 px-8 md:px-12 lg:px-16">
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-3xl font-extrabold text-center text-white mb-8">
+          What Our Clients Say
+        </h2>
+
+        {/* Carousel container */}
+        <div className="relative overflow-hidden bg-gray-800 rounded-lg shadow-xl">
+          {/* Testimonial slides */}
+          <div className="relative h-auto min-h-96 md:min-h-128">
+            {testimonials.map((testimonial, index) => {
+              // Determine the position classes based on index and slide direction
+              let positionClasses = '';
+
+              if (index === currentIndex) {
+                positionClasses = 'opacity-100 translate-x-0';
+              } else if (slideDirection === 'right') {
+                positionClasses = index < currentIndex || (currentIndex === 0 && index === testimonials.length - 1)
+                  ? 'opacity-0 -translate-x-full' // Slide exits to the left
+                  : 'opacity-0 translate-x-full';  // Slide enters from the right
+              } else if (slideDirection === 'left') {
+                positionClasses = index > currentIndex || (currentIndex === testimonials.length - 1 && index === 0)
+                  ? 'opacity-0 translate-x-full'  // Slide exits to the right
+                  : 'opacity-0 -translate-x-full'; // Slide enters from the left
+              } else {
+                // Initial state or when using indicators
+                positionClasses = index < currentIndex ? 'opacity-0 -translate-x-full' : 'opacity-0 translate-x-full';
+              }
+
+              return (
+                <div
+                  key={testimonial._id || index}
+                  className={`absolute top-0 left-0 w-full h-auto transition-all duration-500 ease-in-out transform ${positionClasses}`}
+                >
+                  <div className="flex flex-col md:flex-row h-full p-6 md:p-10">
+                    <div className="flex-shrink-0 flex justify-center items-center mb-4 md:mb-0 md:mr-6">
+                      <img
+                        src={testimonial.image}
+                        alt={testimonial.name}
+                        className="w-48 h-48 object-cover shadow-lg"
+                      />
+                    </div>
+                    <div className="flex-grow flex flex-col justify-center">
+                      <p className="text-gray-300 italic mb-4 text-lg">{testimonial.feedback}</p>
+                      <h3 className="font-bold text-white text-xl">{testimonial.name}</h3>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Navigation arrows */}
+          <div className="absolute inset-y-0 left-0 flex items-center z-20 pl-4">
+            <button
+              onClick={prevSlide}
+              className="bg-gray-700 hover:bg-gray-600 p-3 rounded-full shadow-lg focus:outline-none transition-colors"
+              aria-label="Previous testimonial"
+            >
+              <ChevronLeft className="w-6 h-6 text-white" />
+            </button>
+          </div>
+          <div className="absolute inset-y-0 right-0 flex items-center z-20 pr-4">
+            <button
+              onClick={nextSlide}
+              className="bg-gray-700 hover:bg-gray-600 p-3 rounded-full shadow-lg focus:outline-none transition-colors"
+              aria-label="Next testimonial"
+            >
+              <ChevronRight className="w-6 h-6 text-white" />
+            </button>
+          </div>
+        </div>
+
+        {/* Indicators */}
+        <div className="flex justify-center mt-6 space-x-2">
+          {testimonials.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`w-3 h-3 rounded-full transition-colors ${
+                index === currentIndex ? "bg-blue-500" : "bg-gray-600 hover:bg-gray-500"
+              }`}
+              aria-label={`Go to testimonial ${index + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
+
+
 
 const PricingSection = () => {
   const [plans, setPlans] = useState([]);
@@ -278,6 +376,8 @@ const PricingSection = () => {
   interface Plan {
     _id?: string;
     title: string;
+    duration: number;
+    discountrate: number;
     price: number;
     description: string;
     features: string[];
@@ -314,7 +414,7 @@ const PricingSection = () => {
   }
 
   return (
-    <section className="py-10 dark text-center text-white">
+    <section className="py-10 dark text-center text-white" style={{ margin: '5%' }}>
       <div className="text-center mt-1">
         <h2 className="text-2xl font-semibold tracking-tight">Choose the plan that&apos;s right for you</h2>
         <h1 className="text-4xl font-extrabold tracking-tight mt-4">Pricing Plans</h1>

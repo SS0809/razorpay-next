@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function middleware(req: NextRequest) {
+export async function middleware(req) {
   const token = req.headers.get('Authorization')?.split(' ')[1];
 
   if (!token) {

@@ -9,9 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@coreui/react": "^5.5.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/joy": "^5.0.0-beta.52",
+    "@mui/material": "^7.0.1",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-slot": "^1.0.2",
     "@types/react-pdf": "^6.2.0",
+    "@vercel/edge-config": "^1.4.0",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.0",
     "cloudinary": "^1.41.3",

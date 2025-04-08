@@ -168,7 +168,7 @@ const [imageFile, setImageFile] = useState<File | null>(null);
               </div>
               <div className="flex gap-2">
                 <button onClick={() => handleEdit(index)} className="text-blue-400 hover:text-blue-500">Edit</button>
-                <button onClick={() => setTestimonials(prev => prev.filter((_, i) => i !== index))} className="text-red-400 hover:text-red-500">Delete</button>
+                <button onClick={() => handleDelete(index)} className="text-red-400 hover:text-red-500">Delete</button>
               </div>
             </div>
           ))}

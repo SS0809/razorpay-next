@@ -4,24 +4,26 @@ import Plan from "@/models/Plan";
 import { ObjectId } from "mongodb";
 
 export async function GET(req: NextRequest) {
-    await connectToDatabase();
-    try {
-      const plans = await Plan.find({});
-      return NextResponse.json(plans, { status: 200 });
-    } catch (error) {
-      return NextResponse.json({ error: "Failed to fetch plans" }, { status: 500 });
-    }
+  await connectToDatabase();
+  try {
+    const plans = await Plan.find({});
+    return NextResponse.json(plans, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to fetch plans" }, { status: 500 });
   }
+}
 
 export async function POST(req: NextRequest) {
   await connectToDatabase();
   try {
     const body = await req.json();
-    const { title, price, description, features, unavailableFeatures, actionLabel } = body;
+    const { title, price, duration, discountrate, description, features, unavailableFeatures, actionLabel } = body;
 
     const newPlan = new Plan({
       title,
       price,
+      duration,
+      discountrate,
       description,
       features,
       unavailableFeatures,
@@ -40,7 +42,7 @@ export async function PUT(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { _id, title, price, description, features, unavailableFeatures, actionLabel } = body;
+    const { _id, title, price, duration, discountrate, description, features, unavailableFeatures, actionLabel } = body;
 
     if (!_id) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
@@ -52,7 +54,7 @@ export async function PUT(req: NextRequest) {
 
     const updatedPlan = await Plan.findByIdAndUpdate(
       _id,
-      { title, price, description, features, unavailableFeatures, actionLabel },
+      { title, price, duration, discountrate, description, features, unavailableFeatures, actionLabel },
       { new: true }
     );
 

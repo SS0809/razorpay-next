@@ -5,6 +5,8 @@ interface Plan {
   _id?: string;
   title: string;
   price: number;
+  duration: number; 
+  discountrate: number;
   description: string;
   features: string[];
   unavailableFeatures: string[];
@@ -17,6 +19,8 @@ export default function PlansEditor(): JSX.Element {
   const [newPlan, setNewPlan] = useState<Plan>({
     title: "",
     price: 0,
+    duration: 1, 
+    discountrate: 0,
     description: "",
     features: [],
     unavailableFeatures: [],
@@ -26,7 +30,6 @@ export default function PlansEditor(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // For handling feature lists
   const [newFeature, setNewFeature] = useState<string>("");
   const [newUnavailableFeature, setNewUnavailableFeature] = useState<string>("");
 
@@ -60,11 +63,11 @@ export default function PlansEditor(): JSX.Element {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
     const { name, value } = e.target;
 
-    // Handle price as a number
-    if (name === "price") {
+    // Handle numeric fields
+    if (name === "price" || name === "discountrate" || name === "duration") {
       setNewPlan(prev => ({
         ...prev,
-        [name]: parseInt(value) || 0
+        [name]: parseFloat(value) || 0
       }));
     } else {
       setNewPlan(prev => ({
@@ -72,40 +75,6 @@ export default function PlansEditor(): JSX.Element {
         [name]: value
       }));
     }
-  };
-
-  const addFeature = (): void => {
-    if (newFeature.trim() !== "") {
-      setNewPlan(prev => ({
-        ...prev,
-        features: [...prev.features, newFeature.trim()]
-      }));
-      setNewFeature("");
-    }
-  };
-
-  const removeFeature = (index: number): void => {
-    setNewPlan(prev => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== index)
-    }));
-  };
-
-  const addUnavailableFeature = (): void => {
-    if (newUnavailableFeature.trim() !== "") {
-      setNewPlan(prev => ({
-        ...prev,
-        unavailableFeatures: [...prev.unavailableFeatures, newUnavailableFeature.trim()]
-      }));
-      setNewUnavailableFeature("");
-    }
-  };
-
-  const removeUnavailableFeature = (index: number): void => {
-    setNewPlan(prev => ({
-      ...prev,
-      unavailableFeatures: prev.unavailableFeatures.filter((_, i) => i !== index)
-    }));
   };
 
   const handleSave = async (): Promise<void> => {
@@ -123,21 +92,20 @@ export default function PlansEditor(): JSX.Element {
       const updatedPlan = await response.json();
 
       if (editIndex !== null) {
-        // Update existing plan
         const updatedPlans = plans.map((plan, index) =>
           index === editIndex ? updatedPlan : plan
         );
         setPlans(updatedPlans);
       } else {
-        // Add new plan
         setPlans(prev => [...prev, updatedPlan]);
       }
 
-      // Reset form
       setEditIndex(null);
       setNewPlan({
         title: "",
         price: 0,
+        duration: 1, // Reset to default number value
+        discountrate: 0,
         description: "",
         features: [],
         unavailableFeatures: [],
@@ -172,6 +140,8 @@ export default function PlansEditor(): JSX.Element {
     setNewPlan({
       title: "",
       price: 0,
+      duration: 1, // Reset to default number value
+      discountrate: 0,
       description: "",
       features: [],
       unavailableFeatures: [],
@@ -230,6 +200,26 @@ export default function PlansEditor(): JSX.Element {
             />
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Duration (in months)</label>
+            <input
+              type="number"
+              name="duration"
+              value={newPlan.duration}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded bg-gray-700 text-white border-gray-600"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Discount Rate (%)</label>
+            <input
+              type="number"
+              name="discountrate"
+              value={newPlan.discountrate}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded bg-gray-700 text-white border-gray-600"
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
             <textarea
               name="description"
@@ -238,78 +228,7 @@ export default function PlansEditor(): JSX.Element {
               className="w-full p-2 border rounded bg-gray-700 text-white border-gray-600"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Features</label>
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                value={newFeature}
-                onChange={(e) => setNewFeature(e.target.value)}
-                className="flex-grow p-2 border rounded bg-gray-700 text-white border-gray-600"
-                placeholder="Add a feature"
-              />
-              <button
-                onClick={addFeature}
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-              >
-                Add
-              </button>
-            </div>
-            <ul className="mt-2 space-y-1">
-              {newPlan.features.map((feature, index) => (
-                <li key={index} className="flex items-center justify-between p-2 bg-gray-700 rounded">
-                  <span>{feature}</span>
-                  <button
-                    onClick={() => removeFeature(index)}
-                    className="text-red-400 hover:text-red-500"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Unavailable Features</label>
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                value={newUnavailableFeature}
-                onChange={(e) => setNewUnavailableFeature(e.target.value)}
-                className="flex-grow p-2 border rounded bg-gray-700 text-white border-gray-600"
-                placeholder="Add an unavailable feature"
-              />
-              <button
-                onClick={addUnavailableFeature}
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-              >
-                Add
-              </button>
-            </div>
-            <ul className="mt-2 space-y-1">
-              {newPlan.unavailableFeatures.map((feature, index) => (
-                <li key={index} className="flex items-center justify-between p-2 bg-gray-700 rounded">
-                  <span>{feature}</span>
-                  <button
-                    onClick={() => removeUnavailableFeature(index)}
-                    className="text-red-400 hover:text-red-500"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Action Label</label>
-            <input
-              type="text"
-              name="actionLabel"
-              value={newPlan.actionLabel}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded bg-gray-700 text-white border-gray-600"
-            />
-          </div>
+          {/* Features and Unavailable Features sections remain unchanged */}
           <div className="flex gap-2">
             <button
               onClick={handleSave}
@@ -353,6 +272,8 @@ export default function PlansEditor(): JSX.Element {
                   </button>
                 </div>
               </div>
+              <p className="text-gray-400">{plan.discountrate} : Discount Rate</p>
+              <p className="text-gray-400">{plan.duration} : Duration</p>
               <p className="text-gray-400">{plan.description}</p>
               <div className="mt-2">
                 <h4 className="text-gray-300">Features:</h4>

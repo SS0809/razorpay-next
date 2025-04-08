@@ -48,7 +48,11 @@ const Sidebar: React.FC<SidebarProps> = ({
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
-          <h1 className="text-2xl font-bold absolute left-20">BLean</h1>
+            <img 
+            src="/11.png" 
+            alt="BLean Logo" 
+            className="h-28 absolute left-20" 
+            />
           <h1 className="hidden lg:block text-2xl font-bold absolute left-1/2 transform -translate-x-1/2">{user}</h1>
         </div>
         {token ? (
