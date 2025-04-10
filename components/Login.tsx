@@ -54,7 +54,7 @@ const Login = () => {
             Your email
           </label>
           <input
-            type="email"
+            type="text"
             id="email"
             name="email"
             placeholder="name@company.com"
