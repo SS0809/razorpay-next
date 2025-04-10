@@ -33,9 +33,26 @@ import AuthComponent from "@/components/AuthComponent";
 // );
 
 
+
 const Footer = () => (
-  <footer className="w-full py-4 bg-gray-900 text-white text-center mt-10">
-    <p>&copy; 2025 BLean. All rights reserved.</p>
+  <footer className="w-full py-6 bg-gray-900 text-white text-center mt-10">
+    <p className="mb-2">&copy; 2025 BLean. All rights reserved.</p>
+
+    {/* Navigation Links */}
+    <div className="flex justify-center gap-6 text-sm mb-2">
+      <Link href="/refund-policy" className="hover:text-gray-400">
+        Refund Policy
+      </Link>
+      <Link href="/terms-and-conditions" className="hover:text-gray-400">
+        Terms & Conditions
+      </Link>
+      <Link href="/privacy-policy" className="hover:text-gray-400">
+        Privacy Policy
+      </Link>
+      <Link href="/contact-us" className="hover:text-gray-400">
+        Contact Us  : 7000413579
+      </Link>
+    </div>
 
     {/* Social Media Icons */}
     <div className="flex justify-center gap-4 mt-2">
@@ -58,6 +75,7 @@ const Footer = () => (
     </div>
   </footer>
 );
+
 
 const HeroSection = () => (
   <section className="text-center py-10 text-white">
