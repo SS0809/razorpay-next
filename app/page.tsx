@@ -689,18 +689,38 @@ export default function Page() {
                   }
                 }
                 `}</style>
-
               {/* Orders */}
               {showOrders && (
-                <div className="mt-4 w-full">
-                  <MyOrdersSidebar orderManager={orderManager} />
-                </div>
-              )}
+                  <div 
+                    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50" 
+                    onClick={() => setShowOrders(false)}
+                  >
+                    <div 
+                    className="bg-black rounded-lg shadow-lg p-6 w-full max-w-4xl h-full overflow-y-auto animate-in fade-in duration-300"
+                    onClick={(e) => e.stopPropagation()}
+                    >
+                    <MyOrdersSidebar orderManager={orderManager} />
+                    </div>
+                  </div>
+                  )}
 
               {/* PDF Section */}
               <div className="flex flex-col items-center justify-center w-full">
-                {showPdf && <SecurePdfViewer />}
+                {showPdf && (
+                  <div 
+                    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50" 
+                    onClick={() => setShowPdf(false)}
+                  >
+                    <div 
+                      className="bg-black rounded-lg shadow-lg p-6 w-full max-w-4xl h-full overflow-y-auto animate-in fade-in duration-300"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <SecurePdfViewer />
+                    </div>
+                  </div>
+                )}
               </div>
+              
             </>
           ) : (
             <>
