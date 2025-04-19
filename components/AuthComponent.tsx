@@ -91,11 +91,11 @@ const LoginForm = ({ switchTab }: { switchTab: () => void }) => {
 
       <form onSubmit={handleLogin} className="space-y-4">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-900 dark:text-white">
-             Email address
+          <label htmlFor="text" className="block text-sm font-medium text-gray-900 dark:text-white">
+             Email address || Username
           </label>
           <input
-            type="email"
+            type="text"
             id="email"
             name="email"
             placeholder="name@company.com"
