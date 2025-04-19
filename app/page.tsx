@@ -15,12 +15,13 @@ import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React from 'react';
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useRef, createRef, RefObject } from 'react';
 import Image from "next/image";
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 import { useAuth } from '@/context/AuthContext';
 import ReminderMessage from "@/components/ReminderMessage";
 import MyOrdersSidebar from "@/components/MyOrderSidebar";
+import { CheckCircle, XCircle, Tag, Award } from 'lucide-react';
 import { OrderManager } from "@/components/sidebar/OrderManager";
 import { Instagram, Youtube } from "lucide-react";
 import Sidebar from "@/components/sidebarmain";
@@ -117,59 +118,147 @@ const PricingCard = ({ title, price, description, features, actionLabel }: Prici
     </CardFooter>
   </Card>
 );
+
 const SimplePricingCard = ({ 
   title = "Standard Plan", 
   price = 49, 
-  duration= 1,
-  discountrate= 0,
+  duration = 1,
+  discountrate = 0,
   description = "", 
-  features = [], 
-  unavailableFeatures = [],
-  actionLabel = "Choose Plan" 
-}: PricingCardProps) => (
-  <div className="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:p-8 dark:bg-gray-800 dark:border-gray-700">
-    <h5 className="mb-4 text-xl font-medium text-gray-500 dark:text-gray-400">{title}</h5>
-    <div className="flex items-baseline text-gray-900 dark:text-white">
-      <span className="text-1xl font-semibold">Rs.</span>
-      <span className="text-3xl font-extrabold tracking-tight line-through text-gray-400">{price}</span>
-      <span className="text-3xl font-extrabold tracking-tight text-green-500 ms-4">{price - (price * discountrate / 100)}</span>
-      <span className="ms-1 text-xl font-normal text-gray-500 dark:text-gray-400">/{duration} months</span>
-    </div>
-    {description && <p className="text-gray-500 dark:text-gray-400 my-4">{description}</p>}
-    
-    <ul role="list" className="space-y-5 my-7">
-      {features.length > 0 && features.map((item, i) => (
-        <li key={i} className="flex items-center">
-          <svg className="shrink-0 w-4 h-4 text-blue-700 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-          </svg>
-          <span className="text-base font-normal leading-tight text-gray-500 dark:text-gray-400 ms-3">{item}</span>
-        </li>
-      ))}
-      {unavailableFeatures.length > 0 && unavailableFeatures.map((item, i) => (
-        <li key={i} className="flex line-through decoration-gray-500">
-          <svg className="shrink-0 w-4 h-4 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-          </svg>
-          <span className="text-base font-normal leading-tight text-gray-500 ms-3">{item}</span>
-        </li>
-      ))}
-    </ul>
-    {useAuth().user ? (
-    <button 
-      onClick={() => window.location.href =  `/checkout/?amount=${price}`} 
-      type="button" 
-      className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-200 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-900 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex justify-center w-full text-center"
-    >{actionLabel}</button>
-      ) : (
-        <button 
-      onClick={() => window.location.href =  '/'} 
-      type="button" 
-      className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-200 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-900 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex justify-center w-full text-center"
-    >{actionLabel}</button>
+  features = [""], 
+  unavailableFeatures = [""],
+  actionLabel = "Choose Plan",
+  popular = false
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const discountedPrice = price - (price * discountrate / 100);
+  
+  // Mock auth function since it's referenced in the original code
+  const useAuth = () => ({ user: true });
+
+  return (
+    <div 
+      className={`w-full max-w-sm bg-white border rounded-xl shadow-lg transition-all duration-300 
+      ${popular ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-gray-200'} 
+      hover:shadow-xl transform hover:scale-102 dark:bg-gray-800 dark:border-gray-700`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Popular badge */}
+      {popular && (
+        <div className="relative">
+          <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/2">
+            <span className="flex items-center px-3 py-1 text-xs font-bold text-white bg-blue-600 rounded-full shadow-md">
+              <Award size={14} className="mr-1" />
+              POPULAR
+            </span>
+          </div>
+        </div>
       )}
-  </div>
-);
+      
+      <div className="p-6 sm:p-8">
+        {/* Header */}
+        <h5 className="mb-3 text-2xl font-bold text-gray-800 dark:text-gray-100">{title}</h5>
+        
+        {/* Price section */}
+        <div className={`flex flex-wrap items-baseline mb-4 transition-transform duration-300 ${isHovered && discountrate > 0 ? 'scale-105' : ''}`}>
+          <span className="text-xl font-semibold text-gray-900 dark:text-white">Rs.</span>
+          
+          {discountrate > 0 ? (
+            <>
+              <span className="text-3xl font-extrabold tracking-tight line-through text-gray-400 ms-2">
+                {price}
+              </span>
+              <span className="text-3xl font-extrabold tracking-tight text-green-600 dark:text-green-400 ms-4">
+                {discountedPrice.toFixed(1)}
+              </span>
+              <span className="ms-2 text-sm font-medium text-white bg-red-500 dark:bg-red-600 px-2 py-0.5 rounded-md flex items-center">
+                <Tag size={14} className="mr-1" />-{discountrate}%
+              </span>
+            </>
+          ) : (
+            <span className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white ms-2">
+              {price}
+            </span>
+          )}
+          
+          <span className="block w-full text-base font-normal text-gray-500 dark:text-gray-400 mt-1">
+            /{duration} {duration === 1 ? 'month' : 'months'}
+          </span>
+        </div>
+
+        {/* Description */}
+        {description && (
+          <p className="text-gray-600 dark:text-gray-400 mb-6 border-b border-gray-200 dark:border-gray-700 pb-6">
+            {description}
+          </p>
+        )}
+        
+        {/* Features section */}
+        <ul role="list" className="space-y-4 my-6">
+          {features.length > 0 && features.map((item, i) => (
+            <li key={i} className="flex items-center">
+              <CheckCircle 
+                className="shrink-0 w-5 h-5 text-green-500 dark:text-green-400" 
+                size={20} 
+              />
+              <span className="text-base font-normal leading-tight text-gray-700 dark:text-gray-300 ms-3">
+                {item}
+              </span>
+            </li>
+          ))}
+          
+          {unavailableFeatures.length > 0 && unavailableFeatures.map((item, i) => (
+            <li key={i} className="flex items-center text-gray-400 dark:text-gray-500">
+              <XCircle 
+                className="shrink-0 w-5 h-5 text-gray-400 dark:text-gray-500" 
+                size={20}
+              />
+              <span className="text-base font-normal leading-tight ms-3 line-through">
+                {item}
+              </span>
+            </li>
+          ))}
+        </ul>
+        
+        {/* Action button */}
+        {useAuth().user ? (
+          <button 
+            onClick={() => window.location.href = `/checkout/?amount=${discountedPrice}`} 
+            type="button" 
+            className={`w-full py-3 text-white font-medium rounded-lg text-sm px-5 inline-flex justify-center items-center transition-all 
+            ${popular 
+              ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/30' 
+              : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700'} 
+            focus:ring-4 focus:outline-none focus:ring-blue-200 dark:focus:ring-blue-900`}
+          >
+            {actionLabel}
+          </button>
+        ) : (
+          <button 
+            onClick={() => window.location.href = '/'} 
+            type="button" 
+            className={`w-full py-3 text-white font-medium rounded-lg text-sm px-5 inline-flex justify-center items-center transition-all 
+            ${popular 
+              ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/30' 
+              : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700'} 
+            focus:ring-4 focus:outline-none focus:ring-blue-200 dark:focus:ring-blue-900`}
+          >
+            {actionLabel}
+          </button>
+        )}
+        
+        {/* Add limited time offer text if there's a discount */}
+        {discountrate > 0 && (
+          <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">
+            Limited time offer. Cancel anytime.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const Card3D = () => {
   return (
     <CardContainer className="inter-var">
@@ -219,18 +308,25 @@ const Card3D = () => {
   );
 };
 
+
+
+
+// Define TypeScript interfaces
 interface Testimonial {
   _id?: string;
   name: string;
   feedback: string;
   image: string;
+  position?: string;
 }
 
-const Testimonials = () => {
+const Testimonials: React.FC = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
+  const [carouselHeight, setCarouselHeight] = useState<string>('auto');
+  const slideRefs = useRef<RefObject<HTMLDivElement>[]>([]);
 
   useEffect(() => {
     async function fetchTestimonials() {
@@ -238,8 +334,12 @@ const Testimonials = () => {
       try {
         const response = await fetch('/api/testimonials');
         if (response.ok) {
-          const data = await response.json();
+          const data: Testimonial[] = await response.json();
           setTestimonials(data);
+          // Initialize slideRefs with the correct length
+          slideRefs.current = Array(data.length)
+            .fill(null)
+            .map((_, i) => slideRefs.current[i] || createRef<HTMLDivElement>());
         } else {
           console.error('Failed to fetch testimonials');
         }
@@ -253,21 +353,36 @@ const Testimonials = () => {
     fetchTestimonials();
   }, []);
 
-  const nextSlide = () => {
+  // Update carousel height when testimonials change or when current slide changes
+  useEffect(() => {
+    if (testimonials.length > 0 && slideRefs.current[currentIndex]?.current) {
+      // Add a small delay to ensure the DOM has updated
+      const timeoutId = setTimeout(() => {
+        const currentSlideHeight = slideRefs.current[currentIndex].current?.scrollHeight;
+        if (currentSlideHeight) {
+          setCarouselHeight(`${currentSlideHeight}px`);
+        }
+      }, 50);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [testimonials, currentIndex]);
+
+  const nextSlide = (): void => {
     setSlideDirection('right');
     setCurrentIndex((prevIndex) =>
       prevIndex === testimonials.length - 1 ? 0 : prevIndex + 1
     );
   };
 
-  const prevSlide = () => {
+  const prevSlide = (): void => {
     setSlideDirection('left');
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
     );
   };
 
-  const goToSlide = (index: number) => {
+  const goToSlide = (index: number): void => {
     if (index > currentIndex) {
       setSlideDirection('right');
     } else if (index < currentIndex) {
@@ -300,10 +415,13 @@ const Testimonials = () => {
           What Our Clients Say
         </h2>
 
-        {/* Carousel container */}
+        {/* Carousel container with dynamic height */}
         <div className="relative overflow-hidden bg-gray-800 rounded-lg shadow-xl">
           {/* Testimonial slides */}
-          <div className="relative h-auto min-h-96 md:min-h-128">
+          <div 
+            className="relative transition-all duration-300 ease-in-out" 
+            style={{ height: carouselHeight }}
+          >
             {testimonials.map((testimonial, index) => {
               // Determine the position classes based on index and slide direction
               let positionClasses = '';
@@ -326,19 +444,23 @@ const Testimonials = () => {
               return (
                 <div
                   key={testimonial._id || index}
-                  className={`absolute top-0 left-0 w-full h-auto transition-all duration-500 ease-in-out transform ${positionClasses}`}
+                  ref={slideRefs.current[index]}
+                  className={`absolute top-0 left-0 w-full transition-all duration-500 ease-in-out transform ${positionClasses}`}
                 >
-                  <div className="flex flex-col md:flex-row h-full p-6 md:p-10">
-                    <div className="flex-shrink-0 flex justify-center items-center mb-4 md:mb-0 md:mr-6">
+                  <div className="flex flex-col md:flex-row p-6 md:p-10">
+                    <div className="flex-shrink-0 flex justify-center items-start mb-4 md:mb-0 md:mr-6">
                       <img
                         src={testimonial.image}
                         alt={testimonial.name}
-                        className="w-48 h-48 object-cover shadow-lg"
+                        className="w-24 h-24 md:w-32 md:h-32 lg:w-48 lg:h-48 object-cover shadow-lg rounded-lg"
                       />
                     </div>
                     <div className="flex-grow flex flex-col justify-center">
                       <p className="text-gray-300 italic mb-4 text-lg">{testimonial.feedback}</p>
                       <h3 className="font-bold text-white text-xl">{testimonial.name}</h3>
+                      {testimonial.position && (
+                        <p className="text-gray-400">{testimonial.position}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -384,6 +506,7 @@ const Testimonials = () => {
     </div>
   );
 };
+
 
 
 

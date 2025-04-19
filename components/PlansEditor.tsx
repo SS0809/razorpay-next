@@ -219,7 +219,7 @@ export default function PlansEditor(): JSX.Element {
               className="w-full p-2 border rounded bg-gray-700 text-white border-gray-600"
             />
           </div>
-          <div>
+            <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
             <textarea
               name="description"
@@ -227,7 +227,95 @@ export default function PlansEditor(): JSX.Element {
               onChange={handleInputChange}
               className="w-full p-2 border rounded bg-gray-700 text-white border-gray-600"
             />
-          </div>
+            </div>
+            <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Features</label>
+            <div className="flex gap-2 mb-2">
+              <input
+              type="text"
+              value={newFeature}
+              onChange={(e) => setNewFeature(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-700 text-white border-gray-600"
+              placeholder="Add a feature"
+              />
+              <button
+              onClick={() => {
+                if (newFeature.trim()) {
+                setNewPlan((prev) => ({
+                  ...prev,
+                  features: [...prev.features, newFeature.trim()],
+                }));
+                setNewFeature("");
+                }
+              }}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+              Add
+              </button>
+            </div>
+            <ul className="list-disc list-inside text-gray-400">
+              {newPlan.features.map((feature, idx) => (
+              <li key={idx} className="flex justify-between items-center">
+                {feature}
+                <button
+                onClick={() =>
+                  setNewPlan((prev) => ({
+                  ...prev,
+                  features: prev.features.filter((_, i) => i !== idx),
+                  }))
+                }
+                className="text-red-400 hover:text-red-500"
+                >
+                Remove
+                </button>
+              </li>
+              ))}
+            </ul>
+            </div>
+            <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Unavailable Features</label>
+            <div className="flex gap-2 mb-2">
+              <input
+              type="text"
+              value={newUnavailableFeature}
+              onChange={(e) => setNewUnavailableFeature(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-700 text-white border-gray-600"
+              placeholder="Add an unavailable feature"
+              />
+              <button
+              onClick={() => {
+                if (newUnavailableFeature.trim()) {
+                setNewPlan((prev) => ({
+                  ...prev,
+                  unavailableFeatures: [...prev.unavailableFeatures, newUnavailableFeature.trim()],
+                }));
+                setNewUnavailableFeature("");
+                }
+              }}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+              Add
+              </button>
+            </div>
+            <ul className="list-disc list-inside text-gray-400">
+              {newPlan.unavailableFeatures.map((feature, idx) => (
+              <li key={idx} className="flex justify-between items-center">
+                {feature}
+                <button
+                onClick={() =>
+                  setNewPlan((prev) => ({
+                  ...prev,
+                  unavailableFeatures: prev.unavailableFeatures.filter((_, i) => i !== idx),
+                  }))
+                }
+                className="text-red-400 hover:text-red-500"
+                >
+                Remove
+                </button>
+              </li>
+              ))}
+            </ul>
+            </div>
           {/* Features and Unavailable Features sections remain unchanged */}
           <div className="flex gap-2">
             <button
